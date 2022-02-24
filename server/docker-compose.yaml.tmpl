@@ -48,3 +48,74 @@ services:
       #- EnableLogTraceToConsole=true
     expose:
       - {{ .Values.svc_assembler_port }}
+
+  page-service:
+    image: {{ .Values.cnt_registry }}/{{ .Values.svc_page_image }}
+    container_name: {{ .Values.svc_page_name }}-{{ .Values.environment }}
+    build:
+      context: {{ .Values.svc_page_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.svc_page_port }}
+      - LAYOUT_SERVICE_URI=layout-service
+      - CONTENT_SERVICE_URI=content-service
+      - WIDGET_SERVICE_URI=widget-service
+      - SERVICE_NAME={{ .Values.svc_page_name }}
+      #- ZIPKIN_URI=http://zipkin:9411/api/v2/spans
+      #- EnableLogTraceToConsole=true
+    expose:
+      - {{ .Values.svc_page_port }}
+
+  layout-service:
+    image: {{ .Values.cnt_registry }}/{{ .Values.svc_layout_image }}
+    container_name: {{ .Values.svc_layout_name }}-{{ .Values.environment }}
+    build:
+      context: {{ .Values.svc_layout_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.svc_layout_port }}
+      - SERVICE_NAME={{ .Values.svc_layout_name }}
+      #- ZIPKIN_URI=http://zipkin:9411/api/v2/spans
+      #- EnableLogTraceToConsole=true
+    expose:
+      - {{ .Values.svc_layout_port }}
+
+  content-service:
+    image: {{ .Values.cnt_registry }}/{{ .Values.svc_content_image }}
+    container_name: {{ .Values.svc_content_name }}-{{ .Values.environment }}
+    build:
+      context: {{ .Values.svc_content_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.svc_content_port }}
+      - SERVICE_NAME={{ .Values.svc_content_name }}
+      #- ZIPKIN_URI=http://zipkin:9411/api/v2/spans
+      #- EnableLogTraceToConsole=true
+    expose:
+      - {{ .Values.svc_content_port }}
+
+  widget-service:
+    image: {{ .Values.cnt_registry }}/{{ .Values.svc_widget_image }}
+    container_name: {{ .Values.svc_widget_name }}-{{ .Values.environment }}
+    build:
+      context: {{ .Values.svc_widget_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.svc_widget_port }}
+      - SERVICE_NAME={{ .Values.svc_widget_name }}
+      #- ZIPKIN_URI=http://zipkin:9411/api/v2/spans
+      #- EnableLogTraceToConsole=true
+    expose:
+      - {{ .Values.svc_widget_port }}

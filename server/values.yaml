@@ -11,3 +11,19 @@ values:
   svc_assembler_path: /home/jahidul/workspace/microf/server/assembler-service
   svc_assembler_image: assembler-service:current
   svc_assembler_port: 80
+  svc_page_name: page-service
+  svc_page_path: /home/jahidul/workspace/microf/server/page-service
+  svc_page_image: page-service:current
+  svc_page_port: 80
+  svc_layout_name: layout-service
+  svc_layout_path: /home/jahidul/workspace/microf/server/layout-service
+  svc_layout_image: layout-service:current
+  svc_layout_port: 80
+  svc_content_name: content-service
+  svc_content_path: /home/jahidul/workspace/microf/server/content-service
+  svc_content_image: content-service:current
+  svc_content_port: 80
+  svc_widget_name: widget-service
+  svc_widget_path: /home/jahidul/workspace/microf/server/widget-service
+  svc_widget_image: widget-service:current
+  svc_widget_port: 80
