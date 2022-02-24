@@ -1,0 +1,54 @@
+version: '3'
+
+networks:
+  {{ .Values.environment }}:
+    name: {{ .Values.environment }}
+    driver: bridge
+
+services:
+
+  common-widgets:
+    image: {{ .Values.cnt_registry }}/{{ .Values.wdg_common_image }}-{{ .Values.environment }}
+    container_name: {{ .Values.wdg_common_name }}
+    build:
+      context: {{ .Values.wdg_common_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.wdg_common_port }}
+    expose:
+      - {{ .Values.wdg_common_port }}
+    labels:
+      - infra.type={{ .Values.environment }}
+      - traefik.enable=true
+      - traefik.http.routers.{{ .Values.wdg_common_name }}.entrypoints=websecure
+      - traefik.http.routers.{{ .Values.wdg_common_name }}.rule=Host(`{{ .Values.domain }}`) && PathPrefix(`{{ .Values.wdg_common_prefix }}`)
+      - traefik.http.routers.{{ .Values.wdg_common_name }}.tls=true
+      - traefik.http.routers.{{ .Values.wdg_common_name }}.middlewares={{ .Values.wdg_common_identifier }}-stripprefix
+      # Can be reused across all widgets; no need to define it again
+      - traefik.http.middlewares.{{ .Values.wdg_common_identifier }}-stripprefix.stripprefix.prefixes={{ .Values.wdg_common_prefix }}
+
+  common-modules:
+    image: {{ .Values.cnt_registry }}/{{ .Values.wdg_modules_image }}-{{ .Values.environment }}
+    container_name: {{ .Values.wdg_modules_name }}
+    build:
+      context: {{ .Values.wdg_modules_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.wdg_modules_port }}
+    expose:
+      - {{ .Values.wdg_modules_port }}
+    labels:
+      - infra.type={{ .Values.environment }}
+      - traefik.enable=true
+      - traefik.http.routers.{{ .Values.wdg_modules_name }}.entrypoints=websecure
+      - traefik.http.routers.{{ .Values.wdg_modules_name }}.rule=Host(`{{ .Values.domain }}`) && PathPrefix(`{{ .Values.wdg_modules_prefix }}`)
+      - traefik.http.routers.{{ .Values.wdg_modules_name }}.tls=true
+      - traefik.http.routers.{{ .Values.wdg_modules_name }}.middlewares={{ .Values.wdg_modules_identifier }}-stripprefix
+      # Can be reused across all modules; no need to define it again
+      - traefik.http.middlewares.{{ .Values.wdg_modules_identifier }}-stripprefix.stripprefix.prefixes={{ .Values.wdg_modules_prefix }}

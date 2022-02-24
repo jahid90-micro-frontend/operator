@@ -1,0 +1,15 @@
+version: 6
+variables:
+commands:
+  start:
+    description: Start the common widgets and modules
+    steps:
+      - name: Generate the config file
+        run: composer compose --in docker-compose.yaml.tmpl --values values.yaml --out docker-compose.yaml
+      - name: Start the widgets and modules
+        run: docker-compose up -d
+  stop:
+    description: Stop the common widgets and modules
+    steps:
+      - name: Stop the widgets and modules
+        run: docker-compose down
