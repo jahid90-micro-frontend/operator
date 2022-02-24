@@ -1,0 +1,50 @@
+version: '3'
+
+networks:
+  {{ .Values.environment }}:
+    name: {{ .Values.environment }}
+    driver: bridge
+
+services:
+
+  web-service:
+    image: {{ .Values.cnt_registry }}/{{ .Values.svc_web_image }}
+    container_name: {{ .Values.svc_web_name }}-{{ .Values.environment }}
+    build:
+      context: {{ .Values.svc_web_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.svc_web_port }}
+      - ASSEMBLER_SERVICE_URI=assembler-service
+      - SERVICE_NAME={{ .Values.svc_web_name }}
+      #- ZIPKIN_URI=http://zipkin:9411/api/v2/spans
+      #- EnableLogTraceToConsole=true
+    expose:
+      - {{ .Values.svc_web_port }}
+    labels:
+      - infra.type={{ .Values.environment }}
+      - traefik.enable=true
+      - traefik.http.routers.{{ .Values.svc_web_name }}.entrypoints=websecure
+      - traefik.http.routers.{{ .Values.svc_web_name }}.rule=Host(`{{ .Values.domain }}`)
+      - traefik.http.routers.{{ .Values.svc_web_name }}.tls=true
+
+  assembler-service:
+    image: {{ .Values.cnt_registry }}/{{ .Values.svc_assembler_image }}
+    container_name: {{ .Values.svc_assembler_name }}-{{ .Values.environment }}
+    build:
+      context: {{ .Values.svc_assembler_path }}
+      dockerfile: Dockerfile
+    restart: {{ .Values.cnt_restart_policy }}
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - PORT={{ .Values.svc_assembler_port }}
+      - PAGE_SERVICE_URI=page-service
+      - SERVICE_NAME={{ .Values.svc_assembler_name }}
+      #- ZIPKIN_URI=http://zipkin:9411/api/v2/spans
+      #- EnableLogTraceToConsole=true
+    expose:
+      - {{ .Values.svc_assembler_port }}

@@ -1,0 +1,15 @@
+version: 6
+variables:
+commands:
+  start:
+    description: Start the micro frontend framework server
+    steps:
+      - name: Generate the server config file
+        run: composer compose --in docker-compose.yaml.tmpl --values values.yaml --out docker-compose.yaml
+      - name: Start the server
+        run: docker-compose up -d
+  stop:
+    description: Stop the framework server
+    steps:
+      - name: Stop the server
+        run: docker-compose down

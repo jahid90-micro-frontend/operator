@@ -1,0 +1,13 @@
+values:
+  domain: home.io
+  environment: staging
+  cnt_registry: registry.jahiduls.mint
+  cnt_restart_policy: unless-stopped
+  svc_web_name: web-service
+  svc_web_path: /home/jahidul/workspace/microf/server/web-service
+  svc_web_image: web-service:current
+  svc_web_port: 80
+  svc_assembler_name: assembler-service
+  svc_assembler_path: /home/jahidul/workspace/microf/server/assembler-service
+  svc_assembler_image: assembler-service:current
+  svc_assembler_port: 80
