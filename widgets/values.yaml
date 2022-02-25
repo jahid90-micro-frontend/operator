@@ -6,12 +6,12 @@ values:
   wdg_common_identifier: widgets
   wdg_common_prefix: /widgets
   wdg_common_name: common-widgets
-  wdg_common_path: /home/jahidul/workspace/microf/widgets/common
+  wdg_common_path: /home/jahidul/workspace/projects/microf/widgets/common
   wdg_common_image: common_widgets:current
   wdg_common_port: 80
   wdg_modules_identifier: modules
   wdg_modules_prefix: /modules
   wdg_modules_name: common-modules
-  wdg_modules_path: /home/jahidul/workspace/microf/widgets/modules
+  wdg_modules_path: /home/jahidul/workspace/projects/microf/widgets/modules
   wdg_modules_image: common_modules:current
   wdg_modules_port: 80
