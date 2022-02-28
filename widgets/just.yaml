@@ -8,6 +8,11 @@ commands:
         run: composer compose --in docker-compose.yaml.tmpl --values values.yaml --out docker-compose.yaml
       - name: Start the widgets and modules
         run: docker-compose up -d
+  redeploy:
+    description: Rebuild the widgets and modules
+    steps:
+      - name: Rebuild and restart the containers
+        run: docker-compose up -d --build
   stop:
     description: Stop the common widgets and modules
     steps:

@@ -8,6 +8,11 @@ commands:
         run: composer compose --in docker-compose.yaml.tmpl --values values.yaml --out docker-compose.yaml
       - name: Start the server
         run: docker-compose up -d
+  redeploy:
+    description: Rebuild the server
+    steps:
+      - name: Rebuild the server and restart the containers
+        run: docker-compose up -d --build
   stop:
     description: Stop the framework server
     steps:
