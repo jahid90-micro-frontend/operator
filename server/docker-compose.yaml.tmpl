@@ -9,7 +9,7 @@ services:
 
   web-service:
     image: {{ .Values.cnt_registry }}/{{ .Values.svc_web_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.svc_web_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.svc_web_name }}
     build:
       context: {{ .Values.svc_web_path }}
       dockerfile: Dockerfile
@@ -33,7 +33,7 @@ services:
 
   assembler-service:
     image: {{ .Values.cnt_registry }}/{{ .Values.svc_assembler_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.svc_assembler_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.svc_assembler_name }}
     build:
       context: {{ .Values.svc_assembler_path }}
       dockerfile: Dockerfile
@@ -51,7 +51,7 @@ services:
 
   page-service:
     image: {{ .Values.cnt_registry }}/{{ .Values.svc_page_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.svc_page_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.svc_page_name }}
     build:
       context: {{ .Values.svc_page_path }}
       dockerfile: Dockerfile
@@ -71,7 +71,7 @@ services:
 
   layout-service:
     image: {{ .Values.cnt_registry }}/{{ .Values.svc_layout_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.svc_layout_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.svc_layout_name }}
     build:
       context: {{ .Values.svc_layout_path }}
       dockerfile: Dockerfile
@@ -88,7 +88,7 @@ services:
 
   content-service:
     image: {{ .Values.cnt_registry }}/{{ .Values.svc_content_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.svc_content_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.svc_content_name }}
     build:
       context: {{ .Values.svc_content_path }}
       dockerfile: Dockerfile
@@ -105,7 +105,7 @@ services:
 
   widget-service:
     image: {{ .Values.cnt_registry }}/{{ .Values.svc_widget_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.svc_widget_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.svc_widget_name }}
     build:
       context: {{ .Values.svc_widget_path }}
       dockerfile: Dockerfile

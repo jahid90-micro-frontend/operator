@@ -9,7 +9,7 @@ services:
 
   common-widgets:
     image: {{ .Values.cnt_registry }}/{{ .Values.wdg_common_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.wdg_common_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.wdg_common_name }}
     build:
       context: {{ .Values.wdg_common_path }}
       dockerfile: Dockerfile
@@ -32,7 +32,7 @@ services:
 
   common-modules:
     image: {{ .Values.cnt_registry }}/{{ .Values.wdg_modules_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.wdg_modules_name }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.wdg_modules_name }}
     build:
       context: {{ .Values.wdg_modules_path }}
       dockerfile: Dockerfile
