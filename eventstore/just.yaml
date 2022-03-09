@@ -1,0 +1,29 @@
+version: 6
+variables:
+commands:
+  generate:config:
+    description: Generate configs
+    steps:
+      - name: Generate the compose file
+        run: composer compose --in docker-compose.yaml.tmpl --values values.yaml --out docker-compose.yaml
+  start:
+    description: Start the event store
+    needs:
+      - generate:config
+    steps:
+      - name: Start the services
+        run: docker-compose up -d
+  redeploy:
+    description: Rebuild the event store
+    needs:
+      - generate:config
+    steps:
+      - name: Rebuild and restart the containers
+        run: docker-compose up -d --build
+  stop:
+    description: Stop the event store
+    needs:
+      - generate:config
+    steps:
+      - name: Stop the services
+        run: docker-compose down

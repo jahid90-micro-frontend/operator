@@ -1,0 +1,126 @@
+version: '3'
+
+networks:
+  {{ .Values.environment }}:
+    name: {{ .Values.environment }}
+    driver: bridge
+
+services:
+
+  openapi:
+    image: {{ .Values.cnt_registry }}/{{ .Values.openapi_image }}
+    container_name: {{ .Values.environment }}-{{ .Values.openapi_name }}
+    restart: unless-stopped
+    networks:
+      - {{ .Values.environment }}
+    volumes:
+      - {{ .Values.openapi_path }}:/var/specs:ro
+    environment:
+      - BASE_URL={{ .Values.openapi_base_path }}
+      - SWAGGER_JSON=/var/specs/event-store.yaml
+    expose:
+      - {{ .Values.openapi_port }}
+    labels:
+      - infra.type={{ .Values.environment }}
+      - traefik.enable=true
+      - traefik.docker.network={{ .Values.environment }}
+      - traefik.http.routers.{{ .Values.openapi_name }}.rule=Host(`{{ .Values.openapi_subdomain }}.{{ .Values.domain }}`) && PathPrefix(`{{ .Values.openapi_base_path }}`)
+      - traefik.http.routers.{{ .Values.openapi_name }}.entrypoints=websecure
+      - traefik.http.routers.{{ .Values.openapi_name }}.tls=true
+      - traefik.http.routers.{{ .Values.openapi_name }}.service={{ .Values.openapi_name }}@docker
+      - traefik.http.services.{{ .Values.openapi_name }}.loadbalancer.server.port={{ .Values.openapi_port }}
+
+  eventstore-service:
+    image: {{ .Values.cnt_registry }}/{{ .Values.evs_svc_image }}-{{ .Values.environment }}
+    build:
+      context: {{ .Values.evs_svc_path }}
+      dockerfile: Dockerfile
+    container_name: {{ .Values.environment }}-{{ .Values.evs_svc_name }}
+    restart: unless-stopped
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - APP_NAME=Event Store
+      - ENABLE_GRPC_TEST_RUN=0
+      - ENABLE_HTTP_TEST_RUN=0
+      - EVENTSTORE_CONNECTION_STRING={{ .Values.message_db_conn_string }}
+      - GRPC_SERVER_ADDRESS={{ .Values.evs_svc_grpc_addr }}
+      - NODE_ENV=production
+      - PORT={{ .Values.evs_svc_port }}
+    expose:
+      - {{ .Values.evs_svc_port }}
+      - {{ .Values.evs_svc_grpc_port }}
+    labels:
+      - infra.type={{ .Values.environment }}
+      - traefik.enable=true
+      - traefik.docker.network={{ .Values.environment }}
+      - traefik.http.routers.{{ .Values.evs_svc_name }}.rule=Host(`{{ .Values.evs_svc_subdomain }}.{{ .Values.domain }}`) && PathPrefix(`{{ .Values.evs_svc_base_path }}`)
+      - traefik.http.routers.{{ .Values.evs_svc_name }}.entrypoints=websecure
+      - traefik.http.routers.{{ .Values.evs_svc_name }}.tls=true
+      - traefik.http.routers.{{ .Values.evs_svc_name }}.service={{ .Values.evs_svc_name }}@docker
+      - traefik.http.routers.{{ .Values.evs_svc_name }}.middlewares=stripprefix-{{ .Values.evs_svc_name }}@docker
+      - traefik.http.services.{{ .Values.evs_svc_name }}.loadbalancer.server.port=80
+      - traefik.http.middlewares.stripprefix-{{ .Values.evs_svc_name }}.stripprefix.prefixes={{ .Values.evs_svc_base_path }}
+
+  admin-app:
+    image: {{ .Values.cnt_registry }}/{{ .Values.evs_admin_image }}-{{ .Values.environment }}
+    container_name: {{ .Values.environment }}-{{ .Values.evs_admin_name }}
+    build:
+      context: {{ .Values.evs_admin_path }}
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - APP_NAME=Event Store Admin App
+      - COOKIE_SECRET={{ .Values.evs_admin_cookie_secret }}
+      - DATABASE_CONNECTION_STRING={{ .Values.views_db_conn_string }}
+      - ENABLE_DEBUG=false
+      - EVENT_STORE_CLIENT_ID={{ .Values.evs_admin_client_id }}
+      - EVENT_STORE_SERVICE_CREDENTIALS={{ .Values.evs_admin_creds }}
+      - EVENT_STORE_SERVICE_URL=http://{{ .Values.environment }}-{{ .Values.evs_svc_name }}
+      - MESSAGE_STORE_CONNECTION_STRING={{ .Values.message_db_conn_string }}
+      - NODE_ENV=production
+      - PORT={{ .Values.evs_admin_port }}
+    expose:
+      - {{ .Values.evs_admin_port }}
+    labels:
+      - infra.type={{ .Values.environment }}
+      - traefik.enable=true
+      - traefik.docker.network={{ .Values.environment }}
+      - traefik.http.routers.{{ .Values.evs_admin_name }}.entrypoints=websecure
+      - traefik.http.routers.{{ .Values.evs_admin_name }}.rule=Host(`{{ .Values.evs_svc_subdomain }}.{{ .Values.domain }}`)
+      - traefik.http.routers.{{ .Values.evs_admin_name }}.tls=true
+      - traefik.http.routers.{{ .Values.evs_admin_name }}.service={{ .Values.evs_admin_name }}
+      - traefik.http.services.{{ .Values.evs_admin_name }}.loadbalancer.server.port=80
+
+  admin-aggregators:
+    image: {{ .Values.cnt_registry }}/{{ .Values.evs_aggr_image }}-{{ .Values.environment }}
+    container_name: {{ .Values.evs_aggr_name }}
+    build:
+      context: {{ .Values.evs_aggr_path }}
+    restart: unless-stopped
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - NODE_ENV=production
+      - ENABLE_DEBUG=false
+      - DATABASE_CONNECTION_STRING={{ .Values.views_db_conn_string }}
+      - MESSAGE_STORE_CONNECTION_STRING={{ .Values.message_db_conn_string }}
+
+  admin-components:
+    image: {{ .Values.cnt_registry }}/{{ .Values.evs_comp_image }}-{{ .Values.environment }}
+    container_name: {{ .Values.evs_comp_name }}
+    build:
+      context: {{ .Values.evs_comp_path }}
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - {{ .Values.environment }}
+    environment:
+      - DATABASE_CONNECTION_STRING={{ .Values.views_db_conn_string }}
+      - EMAIL_DIRECTORY={{ .Values.evs_comp_email_dir }}
+      - ENABLE_DEBUG=false
+      - MESSAGE_STORE_CONNECTION_STRING={{ .Values.message_db_conn_string }}
+      - NODE_ENV=production
+      - SYSTEM_SENDER_EMAIL_ADDRESS={{ .Values.evs_comp_system_sender_email_addr }}
