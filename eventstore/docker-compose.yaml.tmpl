@@ -96,7 +96,7 @@ services:
 
   admin-aggregators:
     image: {{ .Values.cnt_registry }}/{{ .Values.evs_aggr_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.evs_aggr_name }}
+    container_name: {{ .Values.environment }}-{{ .Values.evs_aggr_name }}
     build:
       context: {{ .Values.evs_aggr_path }}
     restart: unless-stopped
@@ -110,7 +110,7 @@ services:
 
   admin-components:
     image: {{ .Values.cnt_registry }}/{{ .Values.evs_comp_image }}-{{ .Values.environment }}
-    container_name: {{ .Values.evs_comp_name }}
+    container_name: {{ .Values.environment }}-{{ .Values.evs_comp_name }}
     build:
       context: {{ .Values.evs_comp_path }}
       dockerfile: Dockerfile
